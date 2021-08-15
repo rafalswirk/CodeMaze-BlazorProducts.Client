@@ -1,0 +1,3 @@
+[submodule "CodeMaze-BlazorProducts.Server"]
+	path = CodeMaze-BlazorProducts.Server
+	url = https://github.com/Rafi027/CodeMaze-BlazorProducts.Server.git
