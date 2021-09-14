@@ -17,6 +17,11 @@ namespace BlazorProducts.Client.HttpRepository
             _client = client;
         }
 
+        public async Task<Product> GetProduct(Guid id)
+        {
+            return await _client.GetFromJsonAsync<Product>($"products/{id}");
+        }
+
         public async Task<List<Product>> GetProducts()
         {
             var products = 
@@ -24,5 +29,7 @@ namespace BlazorProducts.Client.HttpRepository
 
             return products;
         }
+
+        
     }
 }
