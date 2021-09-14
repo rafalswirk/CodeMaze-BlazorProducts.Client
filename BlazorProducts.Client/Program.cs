@@ -27,6 +27,8 @@ namespace BlazorProducts.Client
             builder.Services.AddScoped(
                 sp => sp.GetService<IHttpClientFactory>().CreateClient("ProductsAPI"));
 
+            builder.Services.AddScoped<IProductHttpRepository, ProductHttpRepository>();
+
             await builder.Build().RunAsync();
         }
     }
