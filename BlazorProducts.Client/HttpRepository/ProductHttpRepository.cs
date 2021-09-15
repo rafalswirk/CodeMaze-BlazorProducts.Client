@@ -1,9 +1,12 @@
-﻿using Entities.Models;
+﻿using BlazorProducts.Client.Features;
+using Entities.Models;
+using Entities.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.HttpRepository
@@ -11,6 +14,8 @@ namespace BlazorProducts.Client.HttpRepository
     public class ProductHttpRepository : IProductHttpRepository
     {
         private readonly HttpClient _client;
+        private JsonSerializerOptions _options = 
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         public ProductHttpRepository(HttpClient client)
         {
@@ -22,12 +27,23 @@ namespace BlazorProducts.Client.HttpRepository
             return await _client.GetFromJsonAsync<Product>($"products/{id}");
         }
 
-        public async Task<List<Product>> GetProducts()
+        public async Task<PagingResponse<Product>> GetProducts(ProductParameters productParameters)
         {
-            var products = 
-                await _client.GetFromJsonAsync<List<Product>>("products");
+            var response = 
+                await _client.GetAsync($"products?pageNumber={productParameters.PageNumber}");
+            var content = await response.Content.ReadAsStringAsync();
+            if(!response.IsSuccessStatusCode)
+            {
+                throw new ApplicationException(content);
+            }
 
-            return products;
+            var pagingResponse = new PagingResponse<Product>
+            {
+                Items = JsonSerializer.Deserialize<List<Product>>(content, _options),
+                MetaData = JsonSerializer.Deserialize<Metadata>(
+                    response.Headers.GetValues("X-Pagination").First(), _options)
+            };
+            return pagingResponse;
         }
 
         
