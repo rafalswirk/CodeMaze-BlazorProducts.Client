@@ -1,6 +1,7 @@
 ﻿using BlazorProducts.Client.Features;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,8 +30,12 @@ namespace BlazorProducts.Client.HttpRepository
 
         public async Task<PagingResponse<Product>> GetProducts(ProductParameters productParameters)
         {
+            var queryStringParam = new Dictionary<string, string>()
+            {
+                ["pageNumber"] = productParameters.PageNumber.ToString()
+            };
             var response = 
-                await _client.GetAsync($"products?pageNumber={productParameters.PageNumber}");
+                await _client.GetAsync(QueryHelpers.AddQueryString("products", queryStringParam));
             var content = await response.Content.ReadAsStringAsync();
             if(!response.IsSuccessStatusCode)
             {
